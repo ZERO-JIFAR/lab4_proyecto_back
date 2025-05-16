@@ -1,4 +1,4 @@
-package com.ecommerce.ecommerce.entity;
+package com.ecommerce.ecommerce.entity.enums;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

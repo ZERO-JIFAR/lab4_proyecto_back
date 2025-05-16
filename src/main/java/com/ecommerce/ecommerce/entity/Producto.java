@@ -1,5 +1,6 @@
 package com.ecommerce.ecommerce.entity;
 
+import com.ecommerce.ecommerce.entity.enums.Categoria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
