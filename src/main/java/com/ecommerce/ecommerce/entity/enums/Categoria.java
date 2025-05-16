@@ -1,4 +1,5 @@
-package com.ecommerce.ecommerce.entity;
+package com.ecommerce.ecommerce.entity.enums;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,16 +10,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Direccion {
+
+public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String calle;
-    private String localidad;
-    private String cp;
+    private String nombre;
+    private Long idTipo;
 }
-

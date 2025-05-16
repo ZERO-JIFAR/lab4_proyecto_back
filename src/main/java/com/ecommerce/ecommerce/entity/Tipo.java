@@ -13,12 +13,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Direccion {
+public class Tipo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String calle;
-    private String localidad;
-    private String cp;
+    private Long idTipo;
+    private String nombre;
 }
 

@@ -1,4 +1,5 @@
 package com.ecommerce.ecommerce.entity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,12 +14,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Direccion {
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String calle;
-    private String localidad;
-    private String cp;
+    private String nombre;
+    private String email;
+    private String contrasenia;
 }
-
