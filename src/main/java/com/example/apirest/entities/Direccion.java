@@ -1,6 +1,8 @@
 package com.example.apirest.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -10,6 +12,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class Direccion extends Base {
+    @Id
+    @GeneratedValue
+    private Long id;
 
     private String calle;
     private String numero;
