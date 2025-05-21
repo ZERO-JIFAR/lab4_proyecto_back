@@ -20,5 +20,4 @@ public abstract class Base implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-
 }

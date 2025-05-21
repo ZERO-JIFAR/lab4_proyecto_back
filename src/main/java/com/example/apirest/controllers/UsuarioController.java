@@ -20,4 +20,6 @@ public class UsuarioController extends BaseController<Usuario, Long> {
     public Usuario buscarPorEmail(@RequestParam String email) throws Exception {
         return usuarioService.buscarPorEmail(email);
     }
+
+
 }
