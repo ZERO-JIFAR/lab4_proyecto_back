@@ -21,6 +21,9 @@ public class Producto extends Base {
     private String color;
     private String marca;
 
+    private boolean activo;  // cambio necesario para que funcione, no se si debe esta ahi
+
     @ManyToOne
     private Categoria categoria;
 }
+
