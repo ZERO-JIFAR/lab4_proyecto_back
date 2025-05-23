@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface DetalleOrdenRepository extends SoftDeleteRepository<DetalleOrden, Long> {
-    List<DetalleOrden> findByOrdenDeCompraId(Long ordenId);
+    List<DetalleOrden> findByOrdenId(Long ordenId);
 }

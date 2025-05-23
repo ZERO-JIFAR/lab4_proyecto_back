@@ -17,6 +17,6 @@ public class DetalleOrdenService extends BaseService<DetalleOrden, Long> {
     }
 
     public List<DetalleOrden> obtenerPorOrden(Long ordenId) {
-        return detalleOrdenRepository.findByOrdenDeCompraId(ordenId);
+        return detalleOrdenRepository.findByOrdenId(ordenId);
     }
 }

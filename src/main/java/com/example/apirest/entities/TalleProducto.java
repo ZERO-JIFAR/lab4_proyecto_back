@@ -19,4 +19,6 @@ public class TalleProducto extends Base {
 
     @ManyToOne
     private Talle talle;
+
+    private Integer stock;
 }

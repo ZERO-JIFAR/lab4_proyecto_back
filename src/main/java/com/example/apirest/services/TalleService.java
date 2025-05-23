@@ -21,6 +21,6 @@ public class TalleService extends BaseService<Talle, Long>{
     }
 
     public List<Talle> obtenerPorTipoTalle(Long tipoTalleId){
-        return talleRepository.findByTipoTalle(tipoTalleId);
+        return talleRepository.findByTipoTalle_Id(tipoTalleId);
     }
 }
