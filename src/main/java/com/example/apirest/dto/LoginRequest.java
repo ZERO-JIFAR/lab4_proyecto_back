@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginRequest {
     private String email;
-    private String password; // This will be mapped to contrasena in the service
+    private String password; // contrasena
 }

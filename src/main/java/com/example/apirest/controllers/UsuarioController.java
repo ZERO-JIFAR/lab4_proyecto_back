@@ -20,7 +20,7 @@ public class UsuarioController extends BaseController<Usuario, Long> {
         this.usuarioService = usuarioService;
     }
 
-    // Ejemplo de endpoint personalizado: buscar usuario por email
+    // endpoint personalizado: buscar usuario por email
     @GetMapping("/buscarPorEmail")
     public ResponseEntity<Map<String, Object>> buscarPorEmail(@RequestParam String email) throws Exception {
         Usuario usuario = usuarioService.buscarPorEmail(email);

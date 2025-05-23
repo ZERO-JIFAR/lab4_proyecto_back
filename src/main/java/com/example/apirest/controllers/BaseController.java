@@ -56,7 +56,7 @@ public abstract class BaseController<E extends Base, ID extends Serializable> {
         service.eliminar(id);
     }
 
-    // Método para convertir entidad a Map (representación lógica)
+    // Convertir a map
     protected Map<String, Object> convertToMap(E entity) {
         // Implementación básica que debe ser sobrescrita por las clases hijas
         Map<String, Object> map = new HashMap<>();
@@ -64,6 +64,6 @@ public abstract class BaseController<E extends Base, ID extends Serializable> {
         return map;
     }
 
-    // Método para convertir Map a entidad
+    // Map a entidad
     protected abstract E convertToEntity(Map<String, Object> entityMap);
 }

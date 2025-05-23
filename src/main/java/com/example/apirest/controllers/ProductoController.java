@@ -57,7 +57,7 @@ public class ProductoController {
         return ResponseEntity.ok(result);
     }
 
-    // Método para convertir entidad a Map (representación lógica)
+    //  convertir entidad a Map (representación lógica)
     private Map<String, Object> convertToMap(Producto producto) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", producto.getId());
