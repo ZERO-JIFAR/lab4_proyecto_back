@@ -17,15 +17,15 @@ public class TalleProductoService extends BaseService<TalleProducto, Long> {
     }
 
     public List<TalleProducto> obtenerPorProducto(Long productoId) {
-        return talleProductoRepository.findByProducto_Id(productoId);
+        return talleProductoRepository.findByProductoId(productoId);
     }
 
     public TalleProducto obtenerPorProductoYTalle(Long productoId, Long talleId) throws Exception {
-        return talleProductoRepository.findByProducto_IdAndTalle_Id(productoId, talleId)
+        return talleProductoRepository.findByProductoIdAndTalleId(productoId, talleId)
                 .orElseThrow(() -> new Exception("TalleProducto no encontrado para productoId=" + productoId + " y talleId=" + talleId));
     }
 
     public List<TalleProducto> obtenerDisponiblesPorProducto(Long productoId) {
-        return talleProductoRepository.findByProducto_IdAndProducto_ActivoTrue(productoId);
+        return talleProductoRepository.findDisponiblesPorProducto(productoId);
     }
 }

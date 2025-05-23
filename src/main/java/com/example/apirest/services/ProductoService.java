@@ -25,9 +25,7 @@ public class ProductoService extends BaseService<Producto, Long> {
     }
 
     public List<Producto> buscarDisponiblesPorTalle(Long talleId) {
-        // Puedes ajustar la lógica aquí según cómo esté estructurada tu relación con Talle.
-        // Esto es solo un ejemplo suponiendo que el talle está relacionado con la categoría
-        return productoRepository.findByCantidadGreaterThanAndCategoria_Id(0, talleId);
+        return productoRepository.findDisponiblesPorTalle(talleId);
     }
 }
 
