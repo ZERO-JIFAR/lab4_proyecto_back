@@ -43,7 +43,6 @@ public abstract class BaseService<E extends Base, ID extends Serializable> {
         }catch (Exception ex){
             throw new Exception(ex.getMessage());
         }
-
     }
 
     @Transactional

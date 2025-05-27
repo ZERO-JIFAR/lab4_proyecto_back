@@ -12,9 +12,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class Direccion extends Base {
-    @Id
-    @GeneratedValue
-    private Long id;
+
 
     private String calle;
     private String numero;
