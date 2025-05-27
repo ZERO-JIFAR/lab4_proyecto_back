@@ -26,6 +26,4 @@ public class DetalleOrdenController {
     public ResponseEntity<List<DetalleOrden>> obtenerPorOrden(@PathVariable Long ordenId) {
         return ResponseEntity.ok(detalleOrdenService.obtenerPorOrden(ordenId));
     }
-
-    // POST y PUT serían opcionales si los detalles se agregan al crear la orden
 }

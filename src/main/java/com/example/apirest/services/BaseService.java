@@ -43,7 +43,6 @@ public abstract class BaseService<E extends Base, ID extends Serializable> {
         }catch (Exception ex){
             throw new Exception(ex.getMessage());
         }
-
     }
 
     @Transactional
@@ -58,11 +57,23 @@ public abstract class BaseService<E extends Base, ID extends Serializable> {
 
     @Transactional
     public void eliminar(ID id) throws Exception {
-        try{
-            baseRepository.deleteById(id);
-        }catch (Exception ex){
-            throw new Exception(ex.getMessage());
-        }
+        try {
+            Optional<E> optionalEntity = baseRepository.findById(id);
+            if (optionalEntity.isPresent()) {
+                E entity = optionalEntity.get();
 
+                if (entity instanceof Base) {
+                    ((Base) entity).setEliminado(true);
+                    baseRepository.save(entity);
+                } else {
+                    throw new Exception("Entidad no compatible con eliminación lógica");
+                }
+
+            } else {
+                throw new Exception("Entidad no encontrada con ID: " + id);
+            }
+        } catch (Exception ex) {
+            throw new Exception("Error al eliminar lógicamente: " + ex.getMessage());
+        }
     }
 }

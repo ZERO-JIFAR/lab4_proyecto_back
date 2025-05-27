@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Producto extends Base {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String nombre;
     private Integer cantidad;
@@ -24,3 +21,4 @@ public class Producto extends Base {
     @ManyToOne
     private Categoria categoria;
 }
+

@@ -9,13 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Talle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Talle extends Base {
 
-    private String tipoTalle;
 
     @ManyToOne
-    private Tipo tipo;
+    private Tipo tipoTalle;
 }
