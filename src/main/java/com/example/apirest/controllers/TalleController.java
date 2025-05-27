@@ -12,22 +12,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/talles")
-public class TalleController {
+public class TalleController extends BaseController<Talle, Long> {
 
     private final TalleService talleService;
 
     public TalleController(TalleService talleService) {
+        super(talleService);
         this.talleService = talleService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Talle>> getAll() throws Exception {
-        return ResponseEntity.ok(talleService.listar());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<List<Talle>> obtenerPorId(@PathVariable Long Id){
-        return ResponseEntity.ok(talleService.obtenerPorId(Id));
+    @GetMapping("/obtener/{id}")
+    public ResponseEntity<List<Talle>> obtenerPorId(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(talleService.obtenerPorId(id));
     }
 
     @GetMapping("/tipoTalle/{tipoTalleId}")
