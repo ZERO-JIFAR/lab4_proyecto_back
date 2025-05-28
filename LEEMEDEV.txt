@@ -1,0 +1,3 @@
+Según lo que estuve viendo en otros proyectos,
+tenemos varias entidades que no son necesarias, 
+como por ejemplo "DetalleOrden", "OrdenDeCompra", "TalleProducto".
