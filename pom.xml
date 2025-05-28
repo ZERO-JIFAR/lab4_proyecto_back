@@ -32,6 +32,15 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!--Mercado Pago-->>
+		<dependency>
+    		<groupId>com.mercadopago</groupId>
+    		<artifactId>dx-java</artifactId>
+    		<version>1.10.5</version>
+		</dependency>
+
+
+
 		<!-- DevTools -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
