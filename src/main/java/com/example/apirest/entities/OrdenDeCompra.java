@@ -14,12 +14,18 @@ import java.util.List;
 @NoArgsConstructor
 public class OrdenDeCompra extends Base {
 
-
     @ManyToOne
     private Usuario usuario;
 
     private LocalDate fecha;
 
+    @Enumerated(EnumType.STRING)
+    private EstadoPago estadoPago = EstadoPago.PENDIENTE;
+
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
     private List<DetalleOrden> detalle;
+
+    public enum EstadoPago {
+        PENDIENTE, PAGADO, CANCELADO
+    }
 }

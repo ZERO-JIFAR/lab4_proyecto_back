@@ -29,4 +29,18 @@ public class OrdenDeCompraService extends BaseService<OrdenDeCompra, Long> {
 
         return ordenDeCompraRepository.findById(id).map(List::of).orElse(List.of());
     }
+
+    public OrdenDeCompra actualizarEstadoPago(Long ordenId, OrdenDeCompra.EstadoPago estadoPago) {
+        OrdenDeCompra orden = ordenDeCompraRepository.findById(ordenId)
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
+        orden.setEstadoPago(estadoPago);
+        return ordenDeCompraRepository.save(orden);
+    }
+
+    public OrdenDeCompra save(OrdenDeCompra orden) {
+        return ordenDeCompraRepository.save(orden);
+    }
+
+
 }

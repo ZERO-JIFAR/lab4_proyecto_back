@@ -19,4 +19,6 @@ public class DetalleOrden extends Base {
     private Producto producto;
 
     private Integer cantidad;
+
+    private java.math.BigDecimal precioUnitario;
 }
