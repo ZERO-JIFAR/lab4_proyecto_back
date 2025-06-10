@@ -32,7 +32,7 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!--Mercado Pago-->>
+		<!--Mercado Pago-->
 		<dependency>
     		<groupId>com.mercadopago</groupId>
     		<artifactId>dx-java</artifactId>

@@ -33,12 +33,22 @@ public abstract class BaseController<E extends Base, ID extends Serializable> {
         return ResponseEntity.ok(entidadCreada);
     }
 
-    @PutMapping()
-    public ResponseEntity<E> actualizar(@RequestBody E entity) throws Exception {
+    @PutMapping("/{id}")
+    public ResponseEntity<E> actualizar(@PathVariable ID id, @RequestBody E entity) throws Exception {
+        // Asegurarse de que el ID en la URL coincida con el ID en el cuerpo
+        if (entity instanceof Base) {
+            ((Base) entity).setId((Long) id);
+        }
         E entidadAct = service.actualizar(entity);
         return ResponseEntity.ok(entidadAct);
     }
 
+    // Añadir un endpoint alternativo sin ID en la URL para compatibilidad
+    @PutMapping()
+    public ResponseEntity<E> actualizarSinId(@RequestBody E entity) throws Exception {
+        E entidadAct = service.actualizar(entity);
+        return ResponseEntity.ok(entidadAct);
+    }
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable ID id) throws Exception {
         service.eliminar(id);
