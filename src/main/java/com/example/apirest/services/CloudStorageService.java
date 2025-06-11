@@ -1,28 +1,24 @@
 package com.example.apirest.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class CloudStorageService {
 
-    // Directorio donde se guardarán las imágenes (ajusta según tu configuración)
-    private final Path rootLocation = Paths.get("uploads");
+    private final Cloudinary cloudinary;
 
-    public CloudStorageService() {
-        try {
-            Files.createDirectories(rootLocation);
-        } catch (IOException e) {
-            throw new RuntimeException("No se pudo inicializar el almacenamiento", e);
-        }
+    @Autowired
+    public CloudStorageService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
@@ -30,13 +26,13 @@ public class CloudStorageService {
             throw new IOException("No se puede guardar un archivo vacío");
         }
 
-        String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        Path destinationFile = this.rootLocation.resolve(filename);
+        Map uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap("resource_type", "auto")
+        );
 
-        Files.copy(file.getInputStream(), destinationFile);
-
-        // En un entorno real, aquí devolverías la URL completa de la imagen
-        return "/uploads/" + filename;
+        // Devuelve la URL de la imagen subida a Cloudinary
+        return uploadResult.get("secure_url").toString();
     }
 
     public List<String> uploadFiles(List<MultipartFile> files) throws IOException {

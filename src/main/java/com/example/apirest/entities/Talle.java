@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Talle extends Base {
 
+    // Agregar campo para el valor numérico del talle
+    private Double valor;
 
     @ManyToOne
     private Tipo tipoTalle;
