@@ -14,13 +14,11 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class Categoria extends Base {
 
-
     @Column(nullable = false)
     private String nombre;
 
     private String descripcion;
 
-    @OneToOne
-    private Tipo idTipo;
+    @ManyToOne
+    private Tipo tipo;  // Cambiado de idTipo a tipo
 }
-
