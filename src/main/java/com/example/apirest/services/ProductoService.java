@@ -1,5 +1,6 @@
 package com.example.apirest.services;
 
+import com.example.apirest.dto.ProductoDTO;
 import com.example.apirest.entities.Producto;
 import com.example.apirest.entities.Talle;
 import com.example.apirest.entities.TalleProducto;
@@ -131,4 +132,45 @@ public class ProductoService extends BaseService<Producto, Long> {
             throw new Exception("Error al crear producto con talles: " + ex.getMessage());
         }
     }
+
+    /**
+     * Converts a Producto entity to a ProductoDTO
+     * @param producto The producto entity to convert
+     * @return A ProductoDTO with both tallesProducto and talles fields
+     */
+    public ProductoDTO convertToDTO(Producto producto) {
+        if (producto == null) {
+            return null;
+        }
+
+        ProductoDTO dto = new ProductoDTO();
+        dto.setId(producto.getId());
+        dto.setNombre(producto.getNombre());
+        dto.setCantidad(producto.getCantidad());
+        dto.setPrecio(producto.getPrecio());
+        dto.setDescripcion(producto.getDescripcion());
+        dto.setColor(producto.getColor());
+        dto.setMarca(producto.getMarca());
+        dto.setImagenUrl(producto.getImagenUrl());
+        dto.setImagenesAdicionales(producto.getImagenesAdicionales());
+        dto.setCategoria(producto.getCategoria());
+        dto.setTallesProducto(producto.getTallesProducto());
+
+        // Set the same value to talles field for frontend compatibility
+        dto.setTalles(producto.getTallesProducto());
+
+        return dto;
+    }
+
+    /**
+     * Converts a list of Producto entities to a list of ProductoDTO objects
+     * @param productos The list of producto entities to convert
+     * @return A list of ProductoDTO objects
+     */
+    public List<ProductoDTO> convertToDTOList(List<Producto> productos) {
+        return productos.stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }
+

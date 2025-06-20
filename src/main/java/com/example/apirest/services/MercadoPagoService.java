@@ -49,9 +49,9 @@ public class MercadoPagoService {
             PreferenceRequest preferenceRequest = PreferenceRequest.builder()
                     .items(Collections.singletonList(item))
                     .backUrls(PreferenceBackUrlsRequest.builder()
-                            .success("http://localhost:9000/api/pagos/success")
-                            .failure("http://localhost:9000/api/pagos/failure")
-                            .pending("http://localhost:9000/api/pagos/pending")
+                            .success("https://localhost:5173/paymentSuccess")
+                            .pending("https://localhost:5173/")
+                            .failure("https://localhost:5173/paymentFailure")
                             .build())
                     .externalReference(orden.getId().toString())
                     .build();

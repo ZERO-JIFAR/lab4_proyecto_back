@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Talle extends Base {
 
-    // Agregar campo para el valor numérico del talle
-    private Double valor;
+    // Puede ser un valor numérico (para calzado) o un string (S, M, L, XL)
+    private String valor;
 
+    // Relación con el tipo de talle
     @ManyToOne
-    private Tipo tipoTalle;
+    private TipoTalle tipoTalle;
 }

@@ -46,12 +46,14 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/categorias/{id}").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tipos").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tipos/{id}").permitAll()
+                        // NUEVAS REGLAS: Permitir acceso a endpoints de compra para usuarios autenticados
+                        .requestMatchers("/ordenes/**").authenticated()
+                        .requestMatchers("/pay/**").authenticated()
+                        // Mantener restricciones de admin para otros endpoints
                         .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
-                        // Mantener restricción de admin para operaciones de modificación en categorías
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/categorias/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/categorias/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/categorias/**").hasAuthority("ROLE_ADMIN")
-                        // Mantener restricción de admin para operaciones de modificación en tipos
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/tipos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/tipos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/tipos/**").hasAuthority("ROLE_ADMIN")
@@ -62,7 +64,13 @@ public class SecurityConfig {
                         .requestMatchers("/talles/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/talleProducto/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/usuarioDireccion/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/tiposTalle").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/tiposTalle/{id}").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
+
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

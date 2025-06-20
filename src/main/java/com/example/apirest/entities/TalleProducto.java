@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Data
@@ -11,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TalleProducto extends Base {
 
-
     @ManyToOne
+    @JsonBackReference
     private Producto producto;
 
     @ManyToOne

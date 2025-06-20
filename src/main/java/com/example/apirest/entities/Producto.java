@@ -1,5 +1,6 @@
 package com.example.apirest.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,5 +35,6 @@ public class Producto extends Base {
 
     // Relación con TalleProducto para manejar los talles y stock
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<TalleProducto> tallesProducto = new ArrayList<>();
 }
