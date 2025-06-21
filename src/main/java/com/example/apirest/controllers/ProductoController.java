@@ -144,4 +144,15 @@ public class ProductoController extends BaseController<Producto, Long>{
                     .body("Error al actualizar producto con talles: " + e.getMessage());
         }
     }
+    @DeleteMapping("/con-talles/{id}")
+    public ResponseEntity<?> eliminarProductoConTalles(@PathVariable Long id) {
+        try {
+            // Utilizamos el método eliminar del BaseService que ya implementa la eliminación lógica
+            productoService.eliminar(id);
+            return ResponseEntity.ok().body("Producto con talles eliminado correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al eliminar producto con talles: " + e.getMessage());
+        }
+    }
 }
