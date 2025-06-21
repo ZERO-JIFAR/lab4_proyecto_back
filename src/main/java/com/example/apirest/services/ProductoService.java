@@ -172,5 +172,62 @@ public class ProductoService extends BaseService<Producto, Long> {
                 .map(this::convertToDTO)
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    /**
+     * Actualiza un producto con sus talles y stock correspondiente
+     * @param producto El producto a actualizar
+     * @param tallesConStock Mapa con los IDs de los talles y su stock correspondiente
+     * @return El producto actualizado con sus talles y stock
+     * @throws Exception Si ocurre algún error durante la actualización
+     */
+    @Transactional
+    public Producto actualizarProductoConTalles(Producto producto, Map<Long, Integer> tallesConStock) throws Exception {
+        try {
+            // Verificar que el producto existe
+            Producto productoExistente = buscarPorId(producto.getId())
+                    .orElseThrow(() -> new Exception("Producto no encontrado con ID: " + producto.getId()));
+
+            // Actualizar los datos básicos del producto
+            productoExistente.setNombre(producto.getNombre());
+            productoExistente.setCantidad(producto.getCantidad());
+            productoExistente.setPrecio(producto.getPrecio());
+            productoExistente.setDescripcion(producto.getDescripcion());
+            productoExistente.setColor(producto.getColor());
+            productoExistente.setMarca(producto.getMarca());
+            productoExistente.setCategoria(producto.getCategoria());
+
+            // Si hay una nueva URL de imagen, actualizarla
+            if (producto.getImagenUrl() != null && !producto.getImagenUrl().isEmpty()) {
+                productoExistente.setImagenUrl(producto.getImagenUrl());
+            }
+
+            // Limpiar los talles existentes (opcional, dependiendo de tu lógica de negocio)
+            productoExistente.getTallesProducto().clear();
+
+            // Agregar los talles con su stock correspondiente
+            for (Map.Entry<Long, Integer> entry : tallesConStock.entrySet()) {
+                Long talleId = entry.getKey();
+                Integer stock = entry.getValue();
+
+                // Obtener el talle
+                Talle talle = talleRepository.findById(talleId)
+                        .orElseThrow(() -> new Exception("Talle no encontrado con ID: " + talleId));
+
+                // Crear la relación TalleProducto
+                TalleProducto talleProducto = new TalleProducto();
+                talleProducto.setProducto(productoExistente);
+                talleProducto.setTalle(talle);
+                talleProducto.setStock(stock);
+
+                // Agregar a la lista de talles del producto
+                productoExistente.getTallesProducto().add(talleProducto);
+            }
+
+            // Guardar el producto actualizado con sus talles
+            return actualizar(productoExistente);
+        } catch (Exception ex) {
+            throw new Exception("Error al actualizar producto con talles: " + ex.getMessage());
+        }
+    }
 }
 

@@ -126,4 +126,22 @@ public class ProductoController extends BaseController<Producto, Long>{
                     .body("Error al crear producto con talles: " + e.getMessage());
         }
     }
+
+    @PutMapping("/con-talles/{id}")
+    public ResponseEntity<?> actualizarProductoConTalles(@PathVariable Long id, @RequestBody ProductoConTallesDTO productoConTallesDTO) {
+        try {
+            // Asegurarse de que el ID en la URL coincida con el ID en el cuerpo
+            productoConTallesDTO.getProducto().setId(id);
+
+            Producto productoActualizado = productoService.actualizarProductoConTalles(
+                    productoConTallesDTO.getProducto(),
+                    productoConTallesDTO.getTallesConStock()
+            );
+            ProductoDTO productoDTO = productoService.convertToDTO(productoActualizado);
+            return ResponseEntity.ok(productoDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al actualizar producto con talles: " + e.getMessage());
+        }
+    }
 }
