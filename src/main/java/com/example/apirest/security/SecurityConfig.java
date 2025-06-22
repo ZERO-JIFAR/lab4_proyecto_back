@@ -49,9 +49,9 @@ public class SecurityConfig {
                         // NUEVAS REGLAS: Permitir acceso a endpoints de talles para todos los usuarios
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles-producto/**").permitAll()
-                        // NUEVAS REGLAS: Permitir acceso a endpoints de compra para usuarios autenticados
-                        .requestMatchers("/ordenes/**").authenticated()
-                        .requestMatchers("/pay/**").authenticated()
+                        // MODIFICADO: Permitir acceso a endpoints de compra para todos los usuarios
+                        .requestMatchers("/ordenes/**").permitAll()
+                        .requestMatchers("/pay/**").permitAll()
                         // Mantener restricciones de admin para otros endpoints
                         .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/categorias/**").hasAuthority("ROLE_ADMIN")

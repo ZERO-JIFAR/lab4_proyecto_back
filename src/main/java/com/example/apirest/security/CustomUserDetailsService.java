@@ -22,15 +22,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByEmail(email);
+        // Buscar usuario por email y que no esté eliminado
+        Usuario usuario = usuarioRepository.findByEmailAndEliminadoFalse(email);
         if (usuario == null) {
-            throw new UsernameNotFoundException("Usuario no encontrado con email: " + email);
+            throw new UsernameNotFoundException("Usuario no encontrado o deshabilitado con email: " + email);
         }
-        
+
         return new User(
-            usuario.getEmail(),
-            usuario.getContrasena(),
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
+                usuario.getEmail(),
+                usuario.getContrasena(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
         );
     }
 }

@@ -7,4 +7,7 @@ public interface UsuarioRepository extends SoftDeleteRepository<Usuario, Long> {
 
     //x las dudas:
     Usuario findByEmail(String email);
+
+    // Nuevo método que solo devuelve usuarios no eliminados
+    Usuario findByEmailAndEliminadoFalse(String email);
 }
