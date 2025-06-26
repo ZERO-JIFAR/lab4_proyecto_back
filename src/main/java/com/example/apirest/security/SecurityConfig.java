@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/detalleOrden/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/direcciones/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/ordenDeCompra/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/*/restar-stock").permitAll()
                         .requestMatchers("/productos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/talles/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/talles/**").hasAuthority("ROLE_ADMIN")

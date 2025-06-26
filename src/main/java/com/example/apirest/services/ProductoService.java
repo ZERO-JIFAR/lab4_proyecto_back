@@ -6,6 +6,7 @@ import com.example.apirest.entities.Talle;
 import com.example.apirest.entities.TalleProducto;
 import com.example.apirest.repositories.ProductoRepository;
 import com.example.apirest.repositories.TalleRepository;
+import com.example.apirest.repositories.TalleProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +21,19 @@ public class ProductoService extends BaseService<Producto, Long> {
 
     private final TalleRepository talleRepository;
     private final CloudStorageService cloudStorageService;
+    private final TalleProductoRepository talleProductoRepository; // <-- Agregado
 
     @Autowired
-    public ProductoService(ProductoRepository productoRepository, TalleRepository talleRepository, CloudStorageService cloudStorageService) {
+    public ProductoService(
+            ProductoRepository productoRepository,
+            TalleRepository talleRepository,
+            CloudStorageService cloudStorageService,
+            TalleProductoRepository talleProductoRepository // <-- Agregado
+    ) {
         super(productoRepository);
         this.talleRepository = talleRepository;
         this.cloudStorageService = cloudStorageService;
+        this.talleProductoRepository = talleProductoRepository; // <-- Agregado
     }
 
     public List<Producto> buscarPorNombre(String nombre) {
@@ -38,6 +46,30 @@ public class ProductoService extends BaseService<Producto, Long> {
 
     public List<Producto> buscarDisponiblesPorTalle(Long talleId) {
         return ((ProductoRepository) baseRepository).findDisponiblesPorTalle(talleId);
+    }
+
+    /**
+     * Resta stock de un producto para un talle específico.
+     */
+    @Transactional
+    public void restarStock(Long productoId, String talleValor, Integer cantidad) {
+        Producto producto = ((ProductoRepository) baseRepository).findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        // Busca el TalleProducto correspondiente SOLO por valor
+        TalleProducto talleProducto = producto.getTallesProducto().stream()
+                .filter(tp -> tp.getTalle() != null
+                        && tp.getTalle().getValor() != null
+                        && tp.getTalle().getValor().equalsIgnoreCase(talleValor))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Talle no encontrado para el producto"));
+
+        if (talleProducto.getStock() < cantidad) {
+            throw new RuntimeException("Stock insuficiente para el talle seleccionado");
+        }
+
+        talleProducto.setStock(talleProducto.getStock() - cantidad);
+        talleProductoRepository.save(talleProducto);
     }
 
     /**
@@ -229,5 +261,5 @@ public class ProductoService extends BaseService<Producto, Long> {
             throw new Exception("Error al actualizar producto con talles: " + ex.getMessage());
         }
     }
-}
 
+}

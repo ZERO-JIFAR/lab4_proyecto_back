@@ -17,4 +17,7 @@ public interface TalleProductoRepository extends SoftDeleteRepository<TalleProdu
 
     @Query("SELECT tp FROM TalleProducto tp WHERE tp.producto.id = :productoId AND tp.stock > 0")
     List<TalleProducto> findDisponiblesPorProducto(@Param("productoId") Long productoId);
+
+    List<TalleProducto> findByProductoIdAndStockGreaterThan(Long productoId, int stock);
 }
+

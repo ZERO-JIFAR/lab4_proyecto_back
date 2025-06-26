@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +30,17 @@ public class ProductoController extends BaseController<Producto, Long>{
     @GetMapping()
     public ResponseEntity<List<Producto>> listar() throws Exception {
         return super.listar();
+    }
+
+    @PutMapping("/{id}/restar-stock")
+    public ResponseEntity<?> restarStock(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> payload
+    ) {
+        String talle = (String) payload.get("talle");
+        Integer cantidad = (Integer) payload.get("cantidad");
+        productoService.restarStock(id, talle, cantidad);
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -155,4 +167,9 @@ public class ProductoController extends BaseController<Producto, Long>{
                     .body("Error al eliminar producto con talles: " + e.getMessage());
         }
     }
+
+
+
+
 }
+
