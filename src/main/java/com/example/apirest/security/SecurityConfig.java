@@ -51,7 +51,9 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles-producto/**").permitAll()
                         // MODIFICADO: Permitir acceso a endpoints de compra para todos los usuarios
                         .requestMatchers("/ordenes/**").permitAll()
+                        .requestMatchers("/api/ordenes/**").permitAll()
                         .requestMatchers("/pay/**").permitAll()
+                        .requestMatchers("/api/ordenes").permitAll()
                         // Mantener restricciones de admin para otros endpoints
                         .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/categorias/**").hasAuthority("ROLE_ADMIN")

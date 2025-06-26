@@ -37,4 +37,10 @@ public class OrdenDeCompraController {
     public ResponseEntity<List<OrdenDeCompra>> obtenerPorId(@PathVariable Long Id){
         return ResponseEntity.ok(ordenService.obtenerPorId(Id));
     }
+
+    @PostMapping
+    public ResponseEntity<OrdenDeCompra> crear(@RequestBody OrdenDeCompra orden) {
+        return ResponseEntity.ok(ordenService.save(orden));
+    }
+
 }
