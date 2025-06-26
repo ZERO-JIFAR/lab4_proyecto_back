@@ -17,6 +17,8 @@ public class Producto extends Base {
     private String nombre;
     private Integer cantidad;
     private Double precio;
+    private Double precioOriginal; // <-- NUEVO CAMPO PARA GUARDAR EL PRECIO ANTERIOR
+
     private String descripcion;
     private String color;
     private String marca;
