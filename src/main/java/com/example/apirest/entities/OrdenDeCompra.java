@@ -22,7 +22,7 @@ public class OrdenDeCompra extends Base {
     @Enumerated(EnumType.STRING)
     private EstadoPago estadoPago = EstadoPago.PENDIENTE;
 
-    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleOrden> detalle;
 
     public enum EstadoPago {

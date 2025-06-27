@@ -1,5 +1,7 @@
 package com.example.apirest.controllers;
 
+import com.example.apirest.dto.OrdenDeCompraDTO;
+import com.example.apirest.dto.OrdenDeCompraResponseDTO;
 import com.example.apirest.entities.OrdenDeCompra;
 import com.example.apirest.services.OrdenDeCompraService;
 import org.springframework.http.ResponseEntity;
@@ -18,29 +20,34 @@ public class OrdenDeCompraController {
         this.ordenService = ordenService;
     }
 
+    // Si necesitas un endpoint para listar todas las órdenes (admin)
     @GetMapping
-    public ResponseEntity<List<OrdenDeCompra>> getAll() throws Exception {
-        return ResponseEntity.ok(ordenService.listar());
+    public ResponseEntity<List<OrdenDeCompraResponseDTO>> getAll() throws Exception {
+        // Si tienes un método para listar todas, deberías mapearlas a DTO también
+        throw new UnsupportedOperationException("No implementado");
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<OrdenDeCompra>> obtenerPorUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(ordenService.obtenerPorUsuario(usuarioId));
+    public ResponseEntity<List<OrdenDeCompraResponseDTO>> obtenerPorUsuario(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(ordenService.obtenerPorUsuarioDTO(usuarioId));
     }
 
     @GetMapping("/{fecha}")
-    public ResponseEntity<List<OrdenDeCompra>> obtenerPorFecha(@PathVariable LocalDate fecha) {
-        return ResponseEntity.ok(ordenService.obtenerPorFecha(fecha));
+    public ResponseEntity<List<OrdenDeCompraResponseDTO>> obtenerPorFecha(@PathVariable LocalDate fecha) {
+        return ResponseEntity.ok(ordenService.obtenerPorFechaDTO(fecha));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<OrdenDeCompra>> obtenerPorId(@PathVariable Long Id){
-        return ResponseEntity.ok(ordenService.obtenerPorId(Id));
+    @GetMapping("/id/{id}")
+    public ResponseEntity<OrdenDeCompraResponseDTO> obtenerPorId(@PathVariable Long id) {
+        return ordenService.obtenerPorIdDTO(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<OrdenDeCompra> crear(@RequestBody OrdenDeCompra orden) {
-        return ResponseEntity.ok(ordenService.save(orden));
+    public ResponseEntity<OrdenDeCompraResponseDTO> crear(@RequestBody OrdenDeCompraDTO ordenDTO) throws Exception {
+        OrdenDeCompra orden = ordenService.crearOrdenDeCompraDesdeDTO(ordenDTO);
+        OrdenDeCompraResponseDTO responseDTO = ordenService.mapToResponseDTO(orden);
+        return ResponseEntity.ok(responseDTO);
     }
-
 }

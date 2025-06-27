@@ -33,9 +33,7 @@ public class MercadoPagoService {
             MercadoPagoConfig.setAccessToken(mercadoPagoAccessToken);
 
             // Verificar que la orden existe
-            OrdenDeCompra orden = ordenDeCompraService.obtenerPorId(paymentRequest.getOrdenId())
-                    .stream()
-                    .findFirst()
+            OrdenDeCompra orden = ordenDeCompraService.findById(paymentRequest.getOrdenId())
                     .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
 
             // Crear item para la preferencia

@@ -55,6 +55,7 @@ public class AuthService {
                 .email(usuario.getEmail())
                 .nombre(usuario.getNombre())
                 .rol(usuario.getRol().name())
+                .id(usuario.getId()) // <-- AGREGA ESTA LÍNEA
                 .build();
     }
 
@@ -80,6 +81,7 @@ public class AuthService {
                 .email(usuario.getEmail())
                 .nombre(usuario.getNombre())
                 .rol(usuario.getRol().name())
+                .id(usuario.getId()) // <-- AGREGA ESTA LÍNEA
                 .build();
     }
 }
