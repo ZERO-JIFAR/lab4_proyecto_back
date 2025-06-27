@@ -1,9 +1,5 @@
 package com.example.apirest.controllers;
 
-import com.example.apirest.entities.DetalleOrden;
-import com.example.apirest.entities.OrdenDeCompra;
-import com.example.apirest.entities.Producto;
-import com.example.apirest.services.OrdenDeCompraService;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.preference.*;
 import com.mercadopago.resources.preference.Preference;
@@ -20,37 +16,36 @@ import java.util.Map;
 @RestController
 @RequestMapping("/pay")
 public class MercadoPagoController {
-    private final OrdenDeCompraService ordenDeCompraService;
 
     @Value("${mercadopago.access.token}")
     private String mercadoPagoAccessToken;
 
-    public MercadoPagoController(OrdenDeCompraService ordenDeCompraService) {
-        this.ordenDeCompraService = ordenDeCompraService;
-    }
-
+    // Recibe un array de items con cantidad y precio unitario
     @PostMapping("/mp")
     @CrossOrigin("*")
-    public ResponseEntity<String> mp(@RequestBody Map<String, List<Long>> body) throws Exception {
-        List<Long> productIds = body.get("id");
+    public ResponseEntity<String> mp(@RequestBody Map<String, Object> body) throws Exception {
         MercadoPagoConfig.setAccessToken(mercadoPagoAccessToken);
+
+        // Recibe: { items: [{id, title, quantity, unit_price, ...}], orderId? }
+        List<Map<String, Object>> itemsFromBody = (List<Map<String, Object>>) body.get("items");
         List<PreferenceItemRequest> items = new ArrayList<>();
 
-        OrdenDeCompra ordenDeCompra = ordenDeCompraService.generarOrdenCompra(productIds);
+        for (Map<String, Object> item : itemsFromBody) {
+            String id = String.valueOf(item.get("id"));
+            String title = String.valueOf(item.get("title"));
+            String description = item.get("description") != null ? String.valueOf(item.get("description")) : "";
+            int quantity = Integer.parseInt(String.valueOf(item.get("quantity")));
+            BigDecimal unitPrice = new BigDecimal(String.valueOf(item.get("unit_price")));
 
-        for (DetalleOrden detalle : ordenDeCompra.getDetalle()) {
-            Producto producto = detalle.getProducto();
-            BigDecimal precioFinal = detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad()));
-
-            PreferenceItemRequest item = PreferenceItemRequest.builder()
-                    .id(producto.getId().toString())
-                    .title(producto.getNombre())
-                    .description(producto.getDescripcion())
-                    .quantity(detalle.getCantidad())
+            PreferenceItemRequest prefItem = PreferenceItemRequest.builder()
+                    .id(id)
+                    .title(title)
+                    .description(description)
+                    .quantity(quantity)
                     .currencyId("ARS")
-                    .unitPrice(precioFinal.divide(BigDecimal.valueOf(detalle.getCantidad())))
+                    .unitPrice(unitPrice)
                     .build();
-            items.add(item);
+            items.add(prefItem);
         }
 
         PreferenceBackUrlsRequest backUrls =
