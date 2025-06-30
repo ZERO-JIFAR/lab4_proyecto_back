@@ -1,6 +1,6 @@
 package com.example.apirest.controllers;
 
-import com.example.apirest.dto.ProductoConTallesDTO;
+import com.example.apirest.dto.ProductoConColoresDTO;
 import com.example.apirest.dto.ProductoDTO;
 import com.example.apirest.entities.Producto;
 import com.example.apirest.services.ProductoService;
@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/productos")
-public class ProductoController extends BaseController<Producto, Long>{
+public class ProductoController extends BaseController<Producto, Long> {
 
     private final ProductoService productoService;
 
@@ -25,22 +25,48 @@ public class ProductoController extends BaseController<Producto, Long>{
         this.productoService = productoService;
     }
 
-    // Override the base controller methods with compatible return types
     @Override
     @GetMapping()
     public ResponseEntity<List<Producto>> listar() throws Exception {
         return super.listar();
     }
-
-    @PutMapping("/{id}/restar-stock")
-    public ResponseEntity<?> restarStock(
+    @PatchMapping("/{id}/descuento")
+    public ResponseEntity<?> actualizarDescuento(
             @PathVariable Long id,
+            @RequestBody Map<String, Object> body
+    ) {
+        try {
+            Producto producto = productoService.buscarPorId(id).orElseThrow(() -> new Exception("No encontrado"));
+            if (body.containsKey("precio")) {
+                producto.setPrecio(Double.valueOf(body.get("precio").toString()));
+            }
+            if (body.containsKey("precioOriginal")) {
+                Object po = body.get("precioOriginal");
+                producto.setPrecioOriginal(po == null ? null : Double.valueOf(po.toString()));
+            }
+            productoService.crear(producto);
+            return ResponseEntity.ok(productoService.convertToDTO(producto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
+
+    // NUEVO: Resta stock por color y talle
+    @PutMapping("/{productoId}/restar-stock")
+    public ResponseEntity<?> restarStock(
+            @PathVariable Long productoId,
             @RequestBody Map<String, Object> payload
     ) {
-        String talle = (String) payload.get("talle");
-        Integer cantidad = (Integer) payload.get("cantidad");
-        productoService.restarStock(id, talle, cantidad);
-        return ResponseEntity.ok().build();
+        try {
+            Long colorProductoId = Long.valueOf(payload.get("colorProductoId").toString());
+            Long talleId = Long.valueOf(payload.get("talleId").toString());
+            Integer cantidad = Integer.valueOf(payload.get("cantidad").toString());
+            productoService.restarStockColorTalle(colorProductoId, talleId, cantidad);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al restar stock: " + e.getMessage());
+        }
     }
 
     @Override
@@ -49,7 +75,6 @@ public class ProductoController extends BaseController<Producto, Long>{
         return super.buscarPorId(id);
     }
 
-    // Add new methods with different names to return DTOs
     @GetMapping("/dto")
     public ResponseEntity<List<ProductoDTO>> listarDTO() throws Exception {
         List<Producto> productos = productoService.listar();
@@ -68,7 +93,6 @@ public class ProductoController extends BaseController<Producto, Long>{
         }
     }
 
-    // Update other methods to return DTOs
     @GetMapping("/buscar")
     public ResponseEntity<List<ProductoDTO>> buscarPorNombre(@RequestParam String nombre) {
         List<Producto> productos = productoService.buscarPorNombre(nombre);
@@ -83,21 +107,13 @@ public class ProductoController extends BaseController<Producto, Long>{
         return ResponseEntity.ok(productoDTOs);
     }
 
-    @GetMapping("/disponibles/talle/{id}")
-    public ResponseEntity<List<ProductoDTO>> buscarDisponiblesPorTalle(@PathVariable Long id) {
-        List<Producto> productos = productoService.buscarDisponiblesPorTalle(id);
-        List<ProductoDTO> productoDTOs = productoService.convertToDTOList(productos);
-        return ResponseEntity.ok(productoDTOs);
-    }
-
-    // Update the image upload methods to return DTOs
+    // Métodos de imágenes
     @PostMapping(value = "/{id}/imagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> subirImagenPrincipal(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("El archivo está vacío");
             }
-
             Producto producto = productoService.subirImagenPrincipal(id, file);
             ProductoDTO productoDTO = productoService.convertToDTO(producto);
             return ResponseEntity.ok(productoDTO);
@@ -107,69 +123,33 @@ public class ProductoController extends BaseController<Producto, Long>{
         }
     }
 
-    @PostMapping(value = "/{id}/imagenes-adicionales", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> subirImagenesAdicionales(@PathVariable Long id, @RequestParam("files") List<MultipartFile> files) {
+    @PostMapping("/con-colores")
+    public ResponseEntity<?> crearProductoConColores(@RequestBody ProductoConColoresDTO dto) {
         try {
-            if (files.isEmpty()) {
-                return ResponseEntity.badRequest().body("No se han proporcionado archivos");
-            }
-
-            Producto producto = productoService.subirImagenesAdicionales(id, files);
+            Producto producto = productoService.crearProductoConColores(dto);
             ProductoDTO productoDTO = productoService.convertToDTO(producto);
-            return ResponseEntity.ok(productoDTO);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al subir las imágenes: " + e.getMessage());
-        }
-    }
-
-    // Update the create method to return a DTO
-    @PostMapping("/con-talles")
-    public ResponseEntity<?> crearProductoConTalles(@RequestBody ProductoConTallesDTO productoConTallesDTO) {
-        try {
-            Producto productoCreado = productoService.crearProductoConTalles(
-                    productoConTallesDTO.getProducto(),
-                    productoConTallesDTO.getTallesConStock()
-            );
-            ProductoDTO productoDTO = productoService.convertToDTO(productoCreado);
             return ResponseEntity.status(HttpStatus.CREATED).body(productoDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error al crear producto con talles: " + e.getMessage());
+                    .body("Error al crear producto con colores: " + e.getMessage());
         }
     }
 
-    @PutMapping("/con-talles/{id}")
-    public ResponseEntity<?> actualizarProductoConTalles(@PathVariable Long id, @RequestBody ProductoConTallesDTO productoConTallesDTO) {
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> actualizarCampoEliminado(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body
+    ) {
         try {
-            // Asegurarse de que el ID en la URL coincida con el ID en el cuerpo
-            productoConTallesDTO.getProducto().setId(id);
-
-            Producto productoActualizado = productoService.actualizarProductoConTalles(
-                    productoConTallesDTO.getProducto(),
-                    productoConTallesDTO.getTallesConStock()
-            );
-            ProductoDTO productoDTO = productoService.convertToDTO(productoActualizado);
-            return ResponseEntity.ok(productoDTO);
+            Producto producto = productoService.buscarPorId(id).orElseThrow(() -> new Exception("No encontrado"));
+            if (body.containsKey("eliminado")) {
+                producto.setEliminado(Boolean.parseBoolean(body.get("eliminado").toString()));
+            }
+            productoService.crear(producto);
+            return ResponseEntity.ok(productoService.convertToDTO(producto));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error al actualizar producto con talles: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
-    @DeleteMapping("/con-talles/{id}")
-    public ResponseEntity<?> eliminarProductoConTalles(@PathVariable Long id) {
-        try {
-            // Utilizamos el método eliminar del BaseService que ya implementa la eliminación lógica
-            productoService.eliminar(id);
-            return ResponseEntity.ok().body("Producto con talles eliminado correctamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error al eliminar producto con talles: " + e.getMessage());
-        }
-    }
-
-
-
-
 }
-

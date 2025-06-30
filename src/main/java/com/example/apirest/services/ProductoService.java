@@ -1,265 +1,211 @@
 package com.example.apirest.services;
 
+import com.example.apirest.dto.ProductoConColoresDTO;
 import com.example.apirest.dto.ProductoDTO;
-import com.example.apirest.entities.Producto;
-import com.example.apirest.entities.Talle;
-import com.example.apirest.entities.TalleProducto;
+import com.example.apirest.entities.*;
 import com.example.apirest.repositories.ProductoRepository;
 import com.example.apirest.repositories.TalleRepository;
-import com.example.apirest.repositories.TalleProductoRepository;
+import com.example.apirest.repositories.TalleColorProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ProductoService extends BaseService<Producto, Long> {
 
+    private final ProductoRepository productoRepository;
     private final TalleRepository talleRepository;
-    private final CloudStorageService cloudStorageService;
-    private final TalleProductoRepository talleProductoRepository; // <-- Agregado
+    private final CategoriaService categoriaService;
+    private final TalleColorProductoRepository talleColorProductoRepository;
 
     @Autowired
     public ProductoService(
             ProductoRepository productoRepository,
             TalleRepository talleRepository,
-            CloudStorageService cloudStorageService,
-            TalleProductoRepository talleProductoRepository // <-- Agregado
+            CategoriaService categoriaService,
+            TalleColorProductoRepository talleColorProductoRepository
     ) {
         super(productoRepository);
+        this.productoRepository = productoRepository;
         this.talleRepository = talleRepository;
-        this.cloudStorageService = cloudStorageService;
-        this.talleProductoRepository = talleProductoRepository; // <-- Agregado
+        this.categoriaService = categoriaService;
+        this.talleColorProductoRepository = talleColorProductoRepository;
     }
 
-    public List<Producto> buscarPorNombre(String nombre) {
-        return ((ProductoRepository) baseRepository).findByNombreContainingIgnoreCase(nombre);
-    }
-
-    public List<Producto> buscarPorCategoria(Long categoriaId) {
-        return ((ProductoRepository) baseRepository).findByCategoria_Id(categoriaId);
-    }
-
-    public List<Producto> buscarDisponiblesPorTalle(Long talleId) {
-        return ((ProductoRepository) baseRepository).findDisponiblesPorTalle(talleId);
-    }
-
-    /**
-     * Resta stock de un producto para un talle específico.
-     */
     @Transactional
-    public void restarStock(Long productoId, String talleValor, Integer cantidad) {
-        Producto producto = ((ProductoRepository) baseRepository).findById(productoId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+    public Producto crearProductoConColores(ProductoConColoresDTO dto) throws Exception {
+        Producto producto = new Producto();
+        producto.setNombre(dto.getNombre());
+        producto.setPrecio(dto.getPrecio());
+        producto.setPrecioOriginal(dto.getPrecioOriginal());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setMarca(dto.getMarca());
+        producto.setImagenUrl(dto.getImagenUrl());
 
-        // Busca el TalleProducto correspondiente SOLO por valor
-        TalleProducto talleProducto = producto.getTallesProducto().stream()
-                .filter(tp -> tp.getTalle() != null
-                        && tp.getTalle().getValor() != null
-                        && tp.getTalle().getValor().equalsIgnoreCase(talleValor))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Talle no encontrado para el producto"));
-
-        if (talleProducto.getStock() < cantidad) {
-            throw new RuntimeException("Stock insuficiente para el talle seleccionado");
+        if (dto.getCategoriaId() != null) {
+            Categoria categoria = categoriaService.buscarPorId(dto.getCategoriaId())
+                    .orElseThrow(() -> new Exception("Categoría no encontrada con ID: " + dto.getCategoriaId()));
+            producto.setCategoria(categoria);
+        } else {
+            producto.setCategoria(null);
         }
 
-        talleProducto.setStock(talleProducto.getStock() - cantidad);
-        talleProductoRepository.save(talleProducto);
-    }
+        List<ColorProducto> colores = new ArrayList<>();
+        for (ProductoConColoresDTO.ColorDTO colorDTO : dto.getColores()) {
+            ColorProducto colorProducto = new ColorProducto();
+            colorProducto.setColor(colorDTO.getColor());
+            colorProducto.setImagenUrl(colorDTO.getImagenUrl());
+            colorProducto.setImagenesAdicionales(colorDTO.getImagenesAdicionales());
+            colorProducto.setProducto(producto);
 
-    /**
-     * Sube una imagen principal para un producto
-     * @param id ID del producto
-     * @param file Archivo de imagen a subir
-     * @return El producto actualizado con la URL de la imagen
-     * @throws Exception Si ocurre algún error durante la subida
-     */
-    @Transactional
-    public Producto subirImagenPrincipal(Long id, MultipartFile file) throws Exception {
-        try {
-            // Buscar el producto
-            Producto producto = buscarPorId(id)
-                    .orElseThrow(() -> new Exception("Producto no encontrado con ID: " + id));
-
-            // Subir la imagen al almacenamiento en la nube
-            String imageUrl = cloudStorageService.uploadFile(file);
-
-            // Actualizar la URL de la imagen en el producto
-            producto.setImagenUrl(imageUrl);
-
-            // Guardar y devolver el producto actualizado
-            return actualizar(producto);
-        } catch (IOException e) {
-            throw new Exception("Error al subir la imagen: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Sube imágenes adicionales para un producto
-     * @param id ID del producto
-     * @param files Lista de archivos de imagen a subir
-     * @return El producto actualizado con las URLs de las imágenes
-     * @throws Exception Si ocurre algún error durante la subida
-     */
-    @Transactional
-    public Producto subirImagenesAdicionales(Long id, List<MultipartFile> files) throws Exception {
-        try {
-            // Buscar el producto
-            Producto producto = buscarPorId(id)
-                    .orElseThrow(() -> new Exception("Producto no encontrado con ID: " + id));
-
-            // Subir las imágenes al almacenamiento en la nube
-            List<String> imageUrls = cloudStorageService.uploadFiles(files);
-
-            // Añadir las URLs de las imágenes a la lista de imágenes adicionales del producto
-            producto.getImagenesAdicionales().addAll(imageUrls);
-
-            // Guardar y devolver el producto actualizado
-            return actualizar(producto);
-        } catch (IOException e) {
-            throw new Exception("Error al subir las imágenes: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Crea un producto con sus talles y stock correspondiente
-     * @param producto El producto a crear
-     * @param tallesConStock Mapa con los IDs de los talles y su stock correspondiente
-     * @return El producto creado con sus talles y stock
-     * @throws Exception Si ocurre algún error durante la creación
-     */
-    @Transactional
-    public Producto crearProductoConTalles(Producto producto, Map<Long, Integer> tallesConStock) throws Exception {
-        try {
-            // Guardar primero el producto
-            Producto productoGuardado = crear(producto);
-
-            // Agregar los talles con su stock correspondiente
-            for (Map.Entry<Long, Integer> entry : tallesConStock.entrySet()) {
-                Long talleId = entry.getKey();
-                Integer stock = entry.getValue();
-
-                // Obtener el talle
-                Talle talle = talleRepository.findById(talleId)
-                        .orElseThrow(() -> new Exception("Talle no encontrado con ID: " + talleId));
-
-                // Crear la relación TalleProducto
-                TalleProducto talleProducto = new TalleProducto();
-                talleProducto.setProducto(productoGuardado);
-                talleProducto.setTalle(talle);
-                talleProducto.setStock(stock);
-
-                // Agregar a la lista de talles del producto
-                productoGuardado.getTallesProducto().add(talleProducto);
+            List<TalleColorProducto> tallesColor = new ArrayList<>();
+            for (ProductoConColoresDTO.TalleStockDTO talleDTO : colorDTO.getTalles()) {
+                Talle talle = talleRepository.findById(talleDTO.getTalleId())
+                        .orElseThrow(() -> new Exception("Talle no encontrado con ID: " + talleDTO.getTalleId()));
+                TalleColorProducto tcp = new TalleColorProducto();
+                tcp.setColorProducto(colorProducto);
+                tcp.setTalle(talle);
+                tcp.setStock(talleDTO.getStock());
+                tallesColor.add(tcp);
             }
-
-            // Guardar el producto actualizado con sus talles
-            return actualizar(productoGuardado);
-        } catch (Exception ex) {
-            throw new Exception("Error al crear producto con talles: " + ex.getMessage());
+            colorProducto.setTallesColor(tallesColor);
+            colores.add(colorProducto);
         }
+        producto.setColores(colores);
+
+        // Guardar producto y cascada (asegúrate que las relaciones tengan CascadeType.ALL)
+        return productoRepository.save(producto);
     }
 
-    /**
-     * Converts a Producto entity to a ProductoDTO
-     * @param producto The producto entity to convert
-     * @return A ProductoDTO with both tallesProducto and talles fields
-     */
-    public ProductoDTO convertToDTO(Producto producto) {
-        if (producto == null) {
-            return null;
-        }
+    @Override
+    public Producto crear(Producto producto) {
+        return productoRepository.save(producto);
+    }
 
+    // Resta stock para un color y talle específico
+    public void restarStockColorTalle(Long colorProductoId, Long talleId, Integer cantidad) throws Exception {
+        TalleColorProducto tcp = talleColorProductoRepository
+                .findByColorProductoIdAndTalleId(colorProductoId, talleId)
+                .orElseThrow(() -> new Exception("No existe combinación de color y talle para restar stock"));
+
+        if (tcp.getStock() < cantidad) {
+            throw new Exception("Stock insuficiente para restar");
+        }
+        tcp.setStock(tcp.getStock() - cantidad);
+        talleColorProductoRepository.save(tcp);
+    }
+
+    // ----------- MÉTODOS PARA DTO -----------
+
+    public ProductoDTO convertToDTO(Producto producto) {
+        if (producto == null) return null;
         ProductoDTO dto = new ProductoDTO();
         dto.setId(producto.getId());
         dto.setNombre(producto.getNombre());
         dto.setCantidad(producto.getCantidad());
         dto.setPrecio(producto.getPrecio());
+        dto.setPrecioOriginal(producto.getPrecioOriginal());
         dto.setDescripcion(producto.getDescripcion());
-        dto.setColor(producto.getColor());
         dto.setMarca(producto.getMarca());
         dto.setImagenUrl(producto.getImagenUrl());
-        dto.setImagenesAdicionales(producto.getImagenesAdicionales());
-        dto.setCategoria(producto.getCategoria());
-        dto.setTallesProducto(producto.getTallesProducto());
 
-        // Set the same value to talles field for frontend compatibility
-        dto.setTalles(producto.getTallesProducto());
+        // Categoria
+        if (producto.getCategoria() != null) {
+            ProductoDTO.CategoriaDTO catDTO = new ProductoDTO.CategoriaDTO();
+            catDTO.setId(producto.getCategoria().getId());
+            catDTO.setNombre(producto.getCategoria().getNombre());
+            if (producto.getCategoria().getTipo() != null) {
+                ProductoDTO.TipoDTO tipoDTO = new ProductoDTO.TipoDTO();
+                tipoDTO.setId(producto.getCategoria().getTipo().getId());
+                tipoDTO.setNombre(producto.getCategoria().getTipo().getNombre());
+                catDTO.setTipo(tipoDTO);
+            }
+            dto.setCategoria(catDTO);
+        }
+
+        // Colores
+        List<ProductoDTO.ColorDTO> coloresDTO = new ArrayList<>();
+        if (producto.getColores() != null) {
+            for (ColorProducto color : producto.getColores()) {
+                ProductoDTO.ColorDTO colorDTO = new ProductoDTO.ColorDTO();
+                colorDTO.setId(color.getId());
+                colorDTO.setColor(color.getColor());
+                colorDTO.setImagenUrl(color.getImagenUrl());
+                colorDTO.setImagenesAdicionales(color.getImagenesAdicionales());
+
+                // Talles
+                List<ProductoDTO.TalleStockDTO> tallesDTO = new ArrayList<>();
+                if (color.getTallesColor() != null) {
+                    for (TalleColorProducto tcp : color.getTallesColor()) {
+                        ProductoDTO.TalleStockDTO talleDTO = new ProductoDTO.TalleStockDTO();
+                        talleDTO.setTalleId(tcp.getTalle().getId());
+                        talleDTO.setTalleValor(tcp.getTalle().getValor());
+                        talleDTO.setStock(tcp.getStock());
+                        tallesDTO.add(talleDTO);
+                    }
+                }
+                colorDTO.setTalles(tallesDTO);
+                coloresDTO.add(colorDTO);
+            }
+        }
+        dto.setColores(coloresDTO);
 
         return dto;
     }
 
-    /**
-     * Converts a list of Producto entities to a list of ProductoDTO objects
-     * @param productos The list of producto entities to convert
-     * @return A list of ProductoDTO objects
-     */
     public List<ProductoDTO> convertToDTOList(List<Producto> productos) {
-        return productos.stream()
-                .map(this::convertToDTO)
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    /**
-     * Actualiza un producto con sus talles y stock correspondiente
-     * @param producto El producto a actualizar
-     * @param tallesConStock Mapa con los IDs de los talles y su stock correspondiente
-     * @return El producto actualizado con sus talles y stock
-     * @throws Exception Si ocurre algún error durante la actualización
-     */
-    @Transactional
-    public Producto actualizarProductoConTalles(Producto producto, Map<Long, Integer> tallesConStock) throws Exception {
-        try {
-            // Verificar que el producto existe
-            Producto productoExistente = buscarPorId(producto.getId())
-                    .orElseThrow(() -> new Exception("Producto no encontrado con ID: " + producto.getId()));
-
-            // Actualizar los datos básicos del producto
-            productoExistente.setNombre(producto.getNombre());
-            productoExistente.setCantidad(producto.getCantidad());
-            productoExistente.setPrecio(producto.getPrecio());
-            productoExistente.setDescripcion(producto.getDescripcion());
-            productoExistente.setColor(producto.getColor());
-            productoExistente.setMarca(producto.getMarca());
-            productoExistente.setCategoria(producto.getCategoria());
-
-            // Si hay una nueva URL de imagen, actualizarla
-            if (producto.getImagenUrl() != null && !producto.getImagenUrl().isEmpty()) {
-                productoExistente.setImagenUrl(producto.getImagenUrl());
+        List<ProductoDTO> dtos = new ArrayList<>();
+        if (productos != null) {
+            for (Producto p : productos) {
+                dtos.add(convertToDTO(p));
             }
-
-            // Limpiar los talles existentes (opcional, dependiendo de tu lógica de negocio)
-            productoExistente.getTallesProducto().clear();
-
-            // Agregar los talles con su stock correspondiente
-            for (Map.Entry<Long, Integer> entry : tallesConStock.entrySet()) {
-                Long talleId = entry.getKey();
-                Integer stock = entry.getValue();
-
-                // Obtener el talle
-                Talle talle = talleRepository.findById(talleId)
-                        .orElseThrow(() -> new Exception("Talle no encontrado con ID: " + talleId));
-
-                // Crear la relación TalleProducto
-                TalleProducto talleProducto = new TalleProducto();
-                talleProducto.setProducto(productoExistente);
-                talleProducto.setTalle(talle);
-                talleProducto.setStock(stock);
-
-                // Agregar a la lista de talles del producto
-                productoExistente.getTallesProducto().add(talleProducto);
-            }
-
-            // Guardar el producto actualizado con sus talles
-            return actualizar(productoExistente);
-        } catch (Exception ex) {
-            throw new Exception("Error al actualizar producto con talles: " + ex.getMessage());
         }
+        return dtos;
     }
 
+    // ----------- MÉTODOS AGREGADOS PARA EL CONTROLLER -----------
+    public List<Producto> buscarPorNombre(String nombre) {
+        return productoRepository.findAll().stream()
+                .filter(p -> p.getNombre() != null && p.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                .toList();
+    }
+
+    public List<Producto> buscarPorCategoria(Long categoriaId) {
+        return productoRepository.findAll().stream()
+                .filter(p -> p.getCategoria() != null && p.getCategoria().getId().equals(categoriaId))
+                .toList();
+    }
+
+    // ----------- MÉTODO PARA SUBIR IMAGEN PRINCIPAL -----------
+    public Producto subirImagenPrincipal(Long id, MultipartFile file) throws Exception {
+        Optional<Producto> optionalProducto = productoRepository.findById(id);
+        if (optionalProducto.isEmpty()) {
+            throw new Exception("Producto no encontrado con ID: " + id);
+        }
+        Producto producto = optionalProducto.get();
+
+        // Ruta donde se guardará la imagen (ajusta según tu entorno)
+        String uploadDir = "uploads/productos/";
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        String fileName = "producto_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        File dest = new File(uploadDir + fileName);
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new Exception("Error al guardar la imagen: " + e.getMessage());
+        }
+
+        // Guarda la URL relativa o absoluta según tu frontend
+        producto.setImagenUrl("/" + uploadDir + fileName);
+        return productoRepository.save(producto);
+    }
 }

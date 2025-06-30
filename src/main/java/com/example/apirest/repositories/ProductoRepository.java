@@ -15,6 +15,8 @@ public interface ProductoRepository extends SoftDeleteRepository<Producto, Long>
 
     List<Producto> findByCategoria_Id(Long id);
 
+    List<Producto> findByCategoriaId(Long categoriaId);
+
     @Query("SELECT p FROM Producto p JOIN TalleProducto tp ON tp.producto.id = p.id " +
             "WHERE tp.talle.id = :talleId AND tp.stock > 0")
     List<Producto> findDisponiblesPorTalle(@Param("talleId") Long talleId);

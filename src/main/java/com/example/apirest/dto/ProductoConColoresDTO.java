@@ -1,38 +1,21 @@
 package com.example.apirest.dto;
 
 import lombok.Data;
-
 import java.util.List;
 
 @Data
-public class ProductoDTO {
-    private Long id;
+public class ProductoConColoresDTO {
     private String nombre;
-    private Integer cantidad;
     private Double precio;
     private Double precioOriginal;
     private String descripcion;
     private String marca;
     private String imagenUrl;
-    private CategoriaDTO categoria;
+    private Long categoriaId;
     private List<ColorDTO> colores;
 
     @Data
-    public static class CategoriaDTO {
-        private Long id;
-        private String nombre;
-        private TipoDTO tipo;
-    }
-
-    @Data
-    public static class TipoDTO {
-        private Long id;
-        private String nombre;
-    }
-
-    @Data
     public static class ColorDTO {
-        private Long id;
         private String color;
         private String imagenUrl;
         private List<String> imagenesAdicionales;
@@ -42,7 +25,6 @@ public class ProductoDTO {
     @Data
     public static class TalleStockDTO {
         private Long talleId;
-        private String talleValor;
         private Integer stock;
     }
 }

@@ -36,51 +36,49 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/{id}").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/buscar").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/categoria/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/disponibles/talle/**").permitAll()
-                        // Permitir GET para categorías y tipos a todos los usuarios
+                        // --- PRODUCTOS ---
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/*/restar-stock").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/productos/con-colores").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/productos/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/productos/*/descuento").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/productos/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/productos/**").hasAuthority("ROLE_ADMIN")
+                        // --- CATEGORIAS Y TIPOS ---
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/categorias").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/categorias/{id}").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tipos").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tipos/{id}").permitAll()
-                        // NUEVAS REGLAS: Permitir acceso a endpoints de talles para todos los usuarios
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles-producto/**").permitAll()
-                        // MODIFICADO: Permitir acceso a endpoints de compra para todos los usuarios
-                        .requestMatchers("/ordenes/**").permitAll()
-                        .requestMatchers("/api/ordenes/**").permitAll()
-                        .requestMatchers("/pay/**").permitAll()
-                        .requestMatchers("/api/ordenes").permitAll()
-                        // Mantener restricciones de admin para otros endpoints
-                        .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/categorias/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/categorias/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/categorias/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/tipos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/tipos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/tipos/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/detalleOrden/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/direcciones/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/ordenDeCompra/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/*/restar-stock").permitAll()
-                        .requestMatchers("/productos/**").hasAuthority("ROLE_ADMIN")
+                        // --- TALLES ---
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles-producto/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/talles/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/talles/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/talles/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/talles-producto/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/talles-producto/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/talles-producto/**").hasAuthority("ROLE_ADMIN")
+                        // --- ORDENES Y PAGOS ---
+                        .requestMatchers("/ordenes/**").permitAll()
+                        .requestMatchers("/api/ordenes/**").permitAll()
+                        .requestMatchers("/pay/**").permitAll()
+                        .requestMatchers("/api/ordenes").permitAll()
+                        // --- USUARIOS ---
+                        .requestMatchers("/usuarios/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/usuarioDireccion/**").hasAuthority("ROLE_ADMIN")
+                        // --- TIPOS DE TALLE ---
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tiposTalle").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tiposTalle/{id}").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
-
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -111,7 +109,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173", "https://localhost:5173"));
-        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
 

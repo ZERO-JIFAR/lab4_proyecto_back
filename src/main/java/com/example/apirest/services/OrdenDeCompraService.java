@@ -70,6 +70,7 @@ public class OrdenDeCompraService extends BaseService<OrdenDeCompra, Long> {
         dto.setEstadoPago(orden.getEstadoPago().toString());
 
         List<OrdenDeCompraResponseDTO.DetalleOrdenDTO> detalles = new ArrayList<>();
+        // ...existing code...
         for (DetalleOrden det : orden.getDetalle()) {
             OrdenDeCompraResponseDTO.DetalleOrdenDTO detDto = new OrdenDeCompraResponseDTO.DetalleOrdenDTO();
 
@@ -77,7 +78,10 @@ public class OrdenDeCompraService extends BaseService<OrdenDeCompra, Long> {
             if (det.getProducto() != null) {
                 productoDto.setNombre(det.getProducto().getNombre());
                 productoDto.setImagenUrl(det.getProducto().getImagenUrl());
-                productoDto.setColor(det.getProducto().getColor());
+                // Cambia esto:
+                // productoDto.setColor(det.getProducto().getColor());
+                // Por esto:
+                productoDto.setColor(det.getColor()); // El color se guarda en el detalle de la orden
             } else {
                 productoDto.setNombre("Producto desconocido");
                 productoDto.setImagenUrl(null);
@@ -88,6 +92,7 @@ public class OrdenDeCompraService extends BaseService<OrdenDeCompra, Long> {
             detDto.setPrecioUnitario(det.getPrecioUnitario());
             detalles.add(detDto);
         }
+// ...existing code...
         dto.setDetalle(detalles);
         return dto;
     }
