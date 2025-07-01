@@ -16,7 +16,7 @@ public class ProductoDTO {
     private String imagenUrl;
     private CategoriaDTO categoria;
     private List<ColorDTO> colores;
-    private Boolean eliminado; // <-- AGREGADO
+    private boolean eliminado; // <-- PRIMITIVO
 
     @Data
     public static class CategoriaDTO {

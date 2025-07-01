@@ -115,7 +115,8 @@ public class ProductoService extends BaseService<Producto, Long> {
         dto.setDescripcion(producto.getDescripcion());
         dto.setMarca(producto.getMarca());
         dto.setImagenUrl(producto.getImagenUrl());
-        dto.setEliminado(producto.getEliminado()); // <-- AGREGADO
+        dto.setEliminado(producto.isEliminado()); // <-- Usa isEliminado() para boolean
+
 
         // Categoria
         if (producto.getCategoria() != null) {

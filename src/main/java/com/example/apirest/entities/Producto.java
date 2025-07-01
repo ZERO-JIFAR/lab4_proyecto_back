@@ -21,7 +21,7 @@ public class Producto extends Base {
     private String marca;
     private String imagenUrl; // Imagen general (opcional)
 
-    private Boolean eliminado = false; // <-- AGREGADO
+    // El campo eliminado ya está en Base, NO lo declares aquí como Boolean
 
     @ManyToOne
     private Categoria categoria;

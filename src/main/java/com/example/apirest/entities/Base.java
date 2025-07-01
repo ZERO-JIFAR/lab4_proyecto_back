@@ -21,6 +21,5 @@ public abstract class Base implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    private boolean eliminado = false;
-
+    private boolean eliminado = false; // <-- PRIMITIVO
 }
