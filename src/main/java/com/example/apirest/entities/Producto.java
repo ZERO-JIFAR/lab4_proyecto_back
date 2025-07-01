@@ -21,6 +21,8 @@ public class Producto extends Base {
     private String marca;
     private String imagenUrl; // Imagen general (opcional)
 
+    private Boolean eliminado = false; // <-- AGREGADO
+
     @ManyToOne
     private Categoria categoria;
 
