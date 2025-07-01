@@ -210,4 +210,11 @@ public class ProductoService extends BaseService<Producto, Long> {
         producto.setImagenUrl("/" + uploadDir + fileName);
         return productoRepository.save(producto);
     }
+
+    public Categoria getCategoriaById(Long id) throws Exception {
+        return categoriaService.buscarPorId(id)
+                .orElseThrow(() -> new Exception("Categoría no encontrada con ID: " + id));
+    }
+
+
 }
