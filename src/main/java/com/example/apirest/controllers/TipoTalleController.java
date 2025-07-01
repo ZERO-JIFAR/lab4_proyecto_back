@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,6 +43,21 @@ public class TipoTalleController {
         }
         tipoTalle.setId(id);
         return ResponseEntity.ok(tipoTalleService.save(tipoTalle));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TipoTalle> patchTipoTalle(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        Optional<TipoTalle> optional = tipoTalleService.findById(id);
+        if (!optional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        TipoTalle tipoTalle = optional.get();
+        if (updates.containsKey("eliminado")) {
+            tipoTalle.setEliminado(Boolean.TRUE.equals(updates.get("eliminado")) || "true".equals(updates.get("eliminado")));
+        }
+        // Puedes agregar más campos editables aquí si lo deseas
+        TipoTalle actualizado = tipoTalleService.save(tipoTalle);
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")

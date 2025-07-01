@@ -37,9 +37,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         // --- PRODUCTOS ---
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/dto/**").permitAll() // <-- AGREGADO
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/dto/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/*/restar-stock").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/productos/con-colores").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/con-colores/**").hasAuthority("ROLE_ADMIN") // <-- AGREGADO
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/productos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/productos/*/descuento").hasAuthority("ROLE_ADMIN")
@@ -55,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/categorias/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/tipos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/tipos/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/tipos/**").hasAuthority("ROLE_ADMIN") // <-- AGREGADO
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/tipos/**").hasAuthority("ROLE_ADMIN")
                         // --- TALLES ---
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/talles/**").permitAll()
@@ -76,6 +78,7 @@ public class SecurityConfig {
                         // --- TIPOS DE TALLE ---
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tiposTalle").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/tiposTalle/{id}").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/tiposTalle/**").hasAuthority("ROLE_ADMIN")
