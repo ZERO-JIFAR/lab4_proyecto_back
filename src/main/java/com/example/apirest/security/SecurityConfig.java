@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         // --- PRODUCTOS ---
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/productos/dto/**").permitAll() // <-- AGREGADO
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/productos/*/restar-stock").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/productos/con-colores").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/productos/**").hasAuthority("ROLE_ADMIN")
