@@ -152,4 +152,16 @@ public class ProductoController extends BaseController<Producto, Long> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
+    @PutMapping("/con-colores/{id}")
+    public ResponseEntity<?> actualizarProductoConColores(@PathVariable Long id, @RequestBody ProductoConColoresDTO dto) {
+        try {
+            Producto producto = productoService.actualizarProductoConColores(id, dto);
+            ProductoDTO productoDTO = productoService.convertToDTO(producto);
+            return ResponseEntity.ok(productoDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al actualizar producto con colores: " + e.getMessage());
+        }
+    }
 }

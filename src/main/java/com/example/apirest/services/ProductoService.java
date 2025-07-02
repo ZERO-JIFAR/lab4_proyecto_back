@@ -216,5 +216,51 @@ public class ProductoService extends BaseService<Producto, Long> {
                 .orElseThrow(() -> new Exception("Categoría no encontrada con ID: " + id));
     }
 
+    @Transactional
+    public Producto actualizarProductoConColores(Long id, ProductoConColoresDTO dto) throws Exception {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new Exception("Producto no encontrado con ID: " + id));
+        producto.setNombre(dto.getNombre());
+        producto.setPrecio(dto.getPrecio());
+        producto.setPrecioOriginal(dto.getPrecioOriginal());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setMarca(dto.getMarca());
+        producto.setImagenUrl(dto.getImagenUrl());
+
+        if (dto.getCategoriaId() != null) {
+            Categoria categoria = categoriaService.buscarPorId(dto.getCategoriaId())
+                    .orElseThrow(() -> new Exception("Categoría no encontrada con ID: " + dto.getCategoriaId()));
+            producto.setCategoria(categoria);
+        } else {
+            producto.setCategoria(null);
+        }
+
+        // Elimina los colores actuales y los reemplaza por los nuevos (sin romper la referencia)
+        producto.getColores().clear();
+
+        for (ProductoConColoresDTO.ColorDTO colorDTO : dto.getColores()) {
+            ColorProducto colorProducto = new ColorProducto();
+            colorProducto.setColor(colorDTO.getColor());
+            colorProducto.setImagenUrl(colorDTO.getImagenUrl());
+            colorProducto.setImagenesAdicionales(colorDTO.getImagenesAdicionales());
+            colorProducto.setProducto(producto);
+
+            List<TalleColorProducto> tallesColor = new ArrayList<>();
+            for (ProductoConColoresDTO.TalleStockDTO talleDTO : colorDTO.getTalles()) {
+                Talle talle = talleRepository.findById(talleDTO.getTalleId())
+                        .orElseThrow(() -> new Exception("Talle no encontrado con ID: " + talleDTO.getTalleId()));
+                TalleColorProducto tcp = new TalleColorProducto();
+                tcp.setColorProducto(colorProducto);
+                tcp.setTalle(talle);
+                tcp.setStock(talleDTO.getStock());
+                tallesColor.add(tcp);
+            }
+            colorProducto.setTallesColor(tallesColor);
+            producto.getColores().add(colorProducto); // <-- Agrega a la lista original
+        }
+
+        return productoRepository.save(producto);
+    }
+
 
 }
