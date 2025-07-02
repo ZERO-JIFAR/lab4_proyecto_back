@@ -2,7 +2,6 @@ package com.example.apirest.controllers;
 
 import com.example.apirest.dto.ProductoConColoresDTO;
 import com.example.apirest.dto.ProductoDTO;
-import com.example.apirest.dto.ProductoUpdateDTO;
 import com.example.apirest.entities.Producto;
 import com.example.apirest.services.ProductoService;
 import org.springframework.http.HttpStatus;
@@ -137,28 +136,16 @@ public class ProductoController extends BaseController<Producto, Long> {
     }
 
 
-
-
     @PatchMapping("/{id}")
-    public ResponseEntity<?> actualizarParcial(
+    public ResponseEntity<?> actualizarCampoEliminado(
             @PathVariable Long id,
             @RequestBody Map<String, Object> body
     ) {
         try {
             Producto producto = productoService.buscarPorId(id).orElseThrow(() -> new Exception("No encontrado"));
-
-            if (body.containsKey("nombre")) producto.setNombre((String) body.get("nombre"));
-            if (body.containsKey("precio")) producto.setPrecio(Double.valueOf(body.get("precio").toString()));
-            if (body.containsKey("precioOriginal")) producto.setPrecioOriginal(body.get("precioOriginal") == null ? null : Double.valueOf(body.get("precioOriginal").toString()));
-            if (body.containsKey("descripcion")) producto.setDescripcion((String) body.get("descripcion"));
-            if (body.containsKey("marca")) producto.setMarca((String) body.get("marca"));
-            if (body.containsKey("imagenUrl")) producto.setImagenUrl((String) body.get("imagenUrl"));
-            if (body.containsKey("categoriaId")) {
-                Long categoriaId = Long.valueOf(body.get("categoriaId").toString());
-                producto.setCategoria(productoService.getCategoriaById(categoriaId));
+            if (body.containsKey("eliminado")) {
+                producto.setEliminado(Boolean.parseBoolean(body.get("eliminado").toString()));
             }
-            if (body.containsKey("eliminado")) producto.setEliminado(Boolean.parseBoolean(body.get("eliminado").toString()));
-
             productoService.crear(producto);
             return ResponseEntity.ok(productoService.convertToDTO(producto));
         } catch (Exception e) {
